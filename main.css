@@ -1,12 +1,12 @@
 #contenedor > ul {
-  border: 2px dotted yellowgreen;
+  border: 2px solid purple;
 }
 
 #contenedor > ul > li {
   cursor: pointer;
-  color: red;
+  color: black;
 }
 
 #contenedor > ul > li.completed {
-  color: green;
+  color: blue;
 }
