@@ -1,12 +1,18 @@
-#contenedor > ul {
+#todos {
   border: 2px solid purple;
+  height: 400px;
+  margin: 1em 0;
+  overflow-y: auto;
+  padding-inline-start: 40px;
+  padding: 0.8em;
 }
 
-#contenedor > ul > li {
-  cursor: pointer;
+#todos > li {
   color: black;
+  cursor: pointer;
+  line-height: 1.5em;
 }
 
-#contenedor > ul > li.completed {
+#todos > li.completed {
   color: blue;
 }
