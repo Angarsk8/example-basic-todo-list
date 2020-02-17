@@ -1,4 +1,9 @@
-import { createElement as h } from './dom';
+import {
+  elementOpen as open,
+  elementClose as close,
+  text,
+  patch
+} from 'incremental-dom';
 import Store from './store';
 
 function sleep(ms) {
@@ -7,59 +12,77 @@ function sleep(ms) {
 
 function getTodos() {
   const apiUrl = 'https://jsonplaceholder.typicode.com/todos';
-  return sleep(1000).then(() =>
+  return sleep(3000).then(() =>
     fetch(apiUrl).then(response => response.json())
   );
 }
 
 function App(props) {
-  return h('div', undefined, [
-    h('h2', undefined, [
-      'Hello ',
-      h(
-        'span',
-        {
-          contenteditable: true,
-          onBlur: (event) => {
-            props.changeName(event.target.textContent);
-          }
-        },
-        `${props.username}`
-      )
-    ]),
-    h('p', undefined, 'These are your todos: '),
-    Counter(props),
-    TodoList(props)
-  ]);
+  open('div');
+    open('h2', 'subtitle',
+      ['contenteditable', 'true'],
+      'onblur', (event) => {
+        props.changeName(event.target.textContent);
+      }
+    );
+      text(props.username);
+    close('h2');
+    open('p');
+      text('These are your todos');
+    close('p');
+    Counter(props);
+    TodoList(props);
+    StatePanel(props);
+  close('div');
 }
 
 function TodoList({ todos, toggleTodo }) {
-  return h(
-    'ul',
-    { id: 'todos' },
-    todos.length === 0
-      ? 'Loading...'
-      : todos.map(({ id, title, completed }) =>
-          h(
-            'li',
-            {
-              class: completed ? 'completed' : '',
-              onClick: () => {
-                toggleTodo(id);
-              }
-            },
-            title
-          )
-        )
-  );
+  open('ul', 'todos', ['id', 'todos']);
+    if (todos.length === 0) {
+      text('Loading...');
+    } else {
+      todos.forEach(todo => {
+        open('li', null, null,
+          'class', todo.completed ? 'completed' : '',
+          'onclick', toggleTodo.bind(null, todo.id)
+        );
+          text(todo.title);
+        close('li');
+      });
+    }
+  close('ul');
 }
 
 function Counter({ count, increment, decrement }) {
-  return h('div', undefined, [
-    h('h3', undefined, `The count is currently at ${count}`),
-    h('button', { onClick: decrement }, '-'),
-    h('button', { onClick: increment }, '+')
-  ]);
+  open('div');
+    open('h3');
+      text(`The count is currently at ${count}`);
+    close('h3');
+    open('button', 'decrement', null,
+      'onclick', decrement
+    );
+      text('-');
+    close('button');
+    open('button', 'increment', null,
+      'onclick', increment
+    );
+      text('+');
+    close('button');
+  close('div');
+}
+
+function StatePanel(props) {
+  open('div', 'state-panel', ['id', 'state-panel']);
+    open('pre');
+      let state = {};
+      Object.entries(props).forEach(([key, value]) => {
+        if (typeof value !== 'function') {
+          state[key] = value;
+        }
+      });
+      text(JSON.stringify(state, null, 2));
+    close('pre');
+  close('div');
 }
 
 export default function init() {
@@ -78,15 +101,12 @@ export default function init() {
   });
 
   const $container = document.querySelector('#app');
-  let $App = App({ ...store.getState(), ...store.getActions() });
-  let $PreviosApp;
-
-  $container.appendChild($App);
 
   function render(state = store.getState()) {
-    $PreviosApp = $App;
-    $App = App({ ...state, ...store.getActions() });
-    $container.replaceChild($App, $PreviosApp);
+    patch($container, () => {
+      // state + actions = props
+      App({ ...state, ...store.getActions() });
+    });
   }
 
   render();
@@ -99,5 +119,4 @@ export default function init() {
   });
 
   getTodos().then(todos => store.updateState(() => ({ todos })));
-
 }
