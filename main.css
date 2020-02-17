@@ -1,3 +1,7 @@
+* {
+  font-family: monospace;
+}
+
 #todos {
   border: 2px solid purple;
   height: 400px;

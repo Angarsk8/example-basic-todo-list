@@ -4,6 +4,7 @@ import {
   text,
   patch
 } from 'incremental-dom';
+
 import Store from './store';
 
 function sleep(ms) {
@@ -19,18 +20,20 @@ function getTodos() {
 
 function App(props) {
   open('div');
-    open('h2', 'subtitle',
-      ['contenteditable', 'true'],
-      'onblur', (event) => {
-        props.changeName(event.target.textContent);
-      }
-    );
-      text(props.username);
+    open('h2', 'subtitle', null);
+      text('Hello ');
+      open('span', 'username', ['contenteditable', 'true'],
+        'onblur', (event) => {
+          props.changeName(event.target.textContent);
+        }
+      );
+        text(props.username);
+      close('span');
     close('h2');
-    open('p');
-      text('These are your todos');
-    close('p');
     Counter(props);
+    open('p');
+      text('These are your todos: ');
+    close('p');
     TodoList(props);
     StatePanel(props);
   close('div');
