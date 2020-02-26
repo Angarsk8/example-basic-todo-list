@@ -151,6 +151,11 @@ async function run(...asyncTasks) {
   return Promise.all(asyncTasks.map(task => task()));
 }
 
+function scrollToBottom() {
+  const $pre = document.querySelector('pre');
+  $pre.scrollTo(0, $pre.scrollHeight);
+}
+
 async function main() {
   await run(
     onClickButton,
@@ -214,6 +219,7 @@ async function main() {
             console.log('Unknown event:', event);
             break;
         }
+        scrollToBottom();
       }
     }
   );
