@@ -4,7 +4,7 @@
 
 #todos {
   border: 2px solid purple;
-  height: 400px;
+  height: 600px;
   list-style: none;
   margin: 1em 0;
   overflow-y: auto;

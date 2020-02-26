@@ -1,13 +1,14 @@
 {
   "name": "example-dir",
   "version": "1.0.0",
-  "description": "This is yet another basic todo-list app developed with the sole purpose of teaching my brother some key concepts about \"modern\" frontend development. He's just starting with it and naturally is having a lot of questions about everything, so I'm keeping this example here just for the record...",
+  "description": "This is...",
   "main": "index.js",
   "browserslist": [
     "last 1 Chrome versions"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:todo-list": "parcel examples/todo-list/index.html",
+    "start:dom-async-iterators": "parcel examples/dom-async-iterators/index.html"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
   },
   "homepage": "https://github.com/Angarsk8/example-basic-todo-list#readme",
   "dependencies": {
-    "incremental-dom": "^0.7.0"
+    "incremental-dom": "^0.7.0",
+    "parcel": "^1.12.4"
   }
 }

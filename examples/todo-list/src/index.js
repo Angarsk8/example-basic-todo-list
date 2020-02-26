@@ -13,7 +13,7 @@ function sleep(ms) {
 
 function getTodos() {
   const apiUrl = 'https://jsonplaceholder.typicode.com/todos';
-  return sleep(3000).then(() =>
+  return sleep(1500).then(() =>
     fetch(apiUrl).then(response => response.json())
   );
 }
@@ -32,23 +32,39 @@ function App(props) {
     close('h2');
     Counter(props);
     open('p');
-      text('These are your todos: ');
+      text('These are your todos (click on them to change their status): ');
     close('p');
+    open('button', 'fetch-todos', undefined,
+      'onclick', props.fetchTodos,
+      props.fetchingTodos ? 'disabled' : 'enabled', ''
+    );
+      text('Fetch todos!')
+    close('button');
     TodoList(props);
     StatePanel(props);
   close('div');
 }
 
-function TodoList({ todos, toggleTodo }) {
+function TodoList({ todos, fetchingTodos, toggleTodo }) {
   open('ul', 'todos', ['id', 'todos']);
-    if (todos.length === 0) {
+    if (fetchingTodos) {
       text('Loading...');
+    } else if (todos.length === 0) {
+      text('Nothing to show :(');
     } else {
       todos.forEach(todo => {
         open('li', null, null,
           'class', todo.completed ? 'completed' : '',
           'onclick', toggleTodo.bind(null, todo.id)
         );
+          open('span');
+            if (todo.completed) {
+              text('✓');
+            } else {
+              text('×');
+            }
+          close('span');
+          text(' ');
           text(todo.title);
         close('li');
       });
@@ -88,8 +104,18 @@ function StatePanel(props) {
   close('div');
 }
 
-export default function init() {
-  const initialState = { username: '@darmau5', count: 0, todos: [] };
+async function run(...asyncTasks) {
+  return Promise.all(asyncTasks.map(task => task()));
+}
+
+export default async function init() {
+  const initialState = {
+    username: '@darmau5',
+    count: 0,
+    fetchingTodos: false,
+    todos: []
+  };
+
   const store = new Store(initialState);
 
   store.registerActions({
@@ -100,7 +126,15 @@ export default function init() {
       todos: todos.map(todo =>
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
       )
-    })
+    }),
+    fetchTodos: () => async (_, updateState) => {
+      updateState({ fetchingTodos: true });
+      const todos = await getTodos();
+      updateState({
+        todos,
+        fetchingTodos: false
+      });
+    }
   });
 
   const $container = document.querySelector('#app');
@@ -114,12 +148,19 @@ export default function init() {
 
   render();
 
-  store.subscribe((newState, prevState) => {
-    if (newState.username !== prevState.username) {
-      document.title = `Hällo liebe ${newState.username}!!!`;
+  await run(
+    async () => {
+      for await (const [newState, prevState] of store.listenState()) {
+        if (newState.username !== prevState.username) {
+          document.title = `Halo liebe ${newState.username}!!!`;
+        }
+        render(newState);
+      }
+    },
+    async () => { // start
+      store.updateState({ fetchingTodos: true });
+      const todos = await getTodos();
+      store.updateState({ fetchingTodos: false, todos });
     }
-    render(newState);
-  });
-
-  getTodos().then(todos => store.updateState(() => ({ todos })));
+  );
 }
