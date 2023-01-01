@@ -22,6 +22,6 @@
   "homepage": "https://github.com/Angarsk8/example-basic-todo-list#readme",
   "dependencies": {
     "incremental-dom": "^0.7.0",
-    "parcel": "^1.12.4"
+    "parcel": "^2.8.2"
   }
 }
